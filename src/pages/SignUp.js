@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import SignUpIcon from "../assest/assest/signupImage.png";
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
+import { FaRegUser } from "react-icons/fa";
+import { imageTobase64 } from "../helpers/imageTobase64";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +15,7 @@ const SignUp = () => {
     email: "",
     password: "",
     confirmpassword: "",
+    profilePic: "",
   });
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -21,6 +24,15 @@ const SignUp = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(data);
+  };
+  const handleUploadPic = async (e) => {
+    const file = e.target.files[0];
+
+    const imagePic = await imageTobase64(file);
+    console.log(imagePic);
+    setData((preve) => {
+      return { ...preve, profilePic: imagePic };
+    });
   };
 
   return (
@@ -32,8 +44,33 @@ const SignUp = () => {
               Sign Up
             </h1>
           </div>
-          <div className="flex justify-center items-center max-sm:">
-            <img src={SignUpIcon} alt="login icon" className="max-w-70" />
+          <div className="flex justify-center items-center max-sm: flex-col rounded-full">
+            {data.profilePic ? (
+              <img
+                src={data.profilePic}
+                alt="Profile"
+                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
+              />
+            ) : (
+              <FaRegUser size={80} />
+            )}
+            <form>
+              <lable>
+                <div
+                  className="text-sm bg-slate-200 p-2 text-center rounded-full bg-opacity-80 cursor-pointer"
+                  onClick={() => document.getElementById("uploadInput").click()}
+                >
+                  Upload Photo
+                  <input
+                    type="file"
+                    id="uploadInput"
+                    className="hidden"
+                    onChange={handleUploadPic}
+                    accept="image/*"
+                  />
+                </div>
+              </lable>
+            </form>
           </div>
         </div>
         <form className="pt-4 flex-col gap-3" onSubmit={handleSubmit}>
@@ -44,6 +81,7 @@ const SignUp = () => {
                 type="text"
                 placeholder=" Enter Name"
                 name="name"
+                required
                 value={data.name}
                 className="w-full h-full outline-none bg-transparent "
                 onChange={handleChange}
@@ -58,6 +96,7 @@ const SignUp = () => {
                 type="email"
                 placeholder=" Enter Email"
                 name="email"
+                required
                 value={data.email}
                 className="w-full h-full outline-none bg-transparent "
                 onChange={handleChange}
@@ -72,6 +111,7 @@ const SignUp = () => {
                 type={showPassword ? "text" : "password"}
                 placeholder=" Enter Password"
                 name="password"
+                required
                 value={data.password}
                 className="w-full h-full outline-none bg-transparent"
                 onChange={handleChange}
@@ -94,6 +134,7 @@ const SignUp = () => {
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder=" Enter confirm Password"
                 name="confirmpassword"
+                required
                 value={data.confirmpassword}
                 className="w-full h-full outline-none bg-transparent"
                 onChange={handleChange}
