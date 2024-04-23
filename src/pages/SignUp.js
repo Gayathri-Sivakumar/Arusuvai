@@ -1,13 +1,15 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import SignUpIcon from "../assest/assest/signupImage.png";
+import { Link, useNavigate } from "react-router-dom";
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
 import { FaRegUser } from "react-icons/fa";
 import { imageTobase64 } from "../helpers/imageTobase64";
+import SummaryApi from "../common";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [data, setData] = useState({
@@ -17,22 +19,36 @@ const SignUp = () => {
     confirmpassword: "",
     profilePic: "",
   });
+
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    console.log(data);
   };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(data);
-  };
+
   const handleUploadPic = async (e) => {
     const file = e.target.files[0];
-
     const imagePic = await imageTobase64(file);
-    console.log(imagePic);
     setData((preve) => {
       return { ...preve, profilePic: imagePic };
     });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const datafromApi = await fetch(SummaryApi.signup.url, {
+      method: SummaryApi.signup.method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const dataJson = await datafromApi.json();
+
+    if (dataJson.error) {
+      toast.error(dataJson.error);
+    } else {
+      toast.success(dataJson.message);
+      navigate("/login");
+    }
   };
 
   return (
