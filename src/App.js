@@ -4,37 +4,56 @@ import Footer from "./components/Footer";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import SummaryApi from "./common";
+import UserContext from "./context";
 
 function App() {
-  const fetchUserDetails = async () => {
+  const [userDetails, setUserDetails] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const getUserDetails = useCallback(async () => {
     try {
-      const response = await fetch(SummaryApi.userDetails.url, {
-        method: SummaryApi.userDetails.method,
+      const dataResponse = await fetch(SummaryApi.current_user.url, {
+        method: SummaryApi.current_user.method,
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
-      const data = await response.json();
-      console.log(data);
+
+      const dataApi = await dataResponse.json();
+      setUserDetails(dataApi.data);
+      console.log("userDetails", dataApi.data);
     } catch (error) {
-      console.log(error);
+      setError(
+        error.message || "An error occurred while fetching user details"
+      );
+    } finally {
+      setLoading(false);
     }
-  };
-  useEffect(() => {
-    //user-details
-    fetchUserDetails();
   }, []);
+
+  useEffect(() => {
+    getUserDetails();
+  }, [getUserDetails]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <>
-      <ToastContainer />
-      <Header />
-      <main className="min-h-[calc(100vh-120px)]">
-        <Outlet />
-      </main>
-      <Footer />
+      <UserContext.Provider value={userDetails}>
+        <ToastContainer position="top-center" />
+        <Header />
+        <main className="min-h-[calc(100vh-120px)]">
+          <Outlet />
+        </main>
+        <Footer />
+      </UserContext.Provider>
     </>
   );
 }

@@ -1,23 +1,25 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import LoginIcons from "../assest/assest/loginImage.png";
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
 import SummaryApi from "../common";
 import { toast } from "react-toastify";
+import UserContext from "../context";
 
 const Login = () => {
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [data, setData] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
+  const user = useContext(UserContext);
+
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    console.log(data);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(data);
     const response = await fetch(SummaryApi.login.url, {
       method: SummaryApi.login.method,
       credentials: "include",
@@ -27,7 +29,6 @@ const Login = () => {
       body: JSON.stringify(data),
     });
     const result = await response.json();
-    console.log(result);
     if (result.error) {
       toast.error(result.error);
     } else {

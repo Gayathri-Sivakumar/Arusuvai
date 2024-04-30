@@ -9,7 +9,7 @@ const SummaryApi = {
     url: `${backendDomain}/api/signin`,
     method: "POST",
   },
-  userDetails: {
+  current_user: {
     url: `${backendDomain}/api/user-details`,
     method: "GET",
   },
